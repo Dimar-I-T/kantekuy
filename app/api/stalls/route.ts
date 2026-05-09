@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { JWTPayload } from "@/app/types/types";
 import { getAuth } from "@/lib/auth";
-import { createStall } from "@/services/stallService";
+import { createStall, getStall } from "@/services/stallService";
 
 export async function POST(req: NextRequest) {
     try {
@@ -37,5 +37,28 @@ export async function POST(req: NextRequest) {
             success: false,
             message: error.message
         }, { status: 500 })
+    }
+}
+
+export async function GET(req: NextRequest) {
+    try {
+        const searchParams = req.nextUrl.searchParams;
+        const search = searchParams.get('search');
+        const by_rating = searchParams.get('by_rating') === 'true';
+        const semua = searchParams.get('semua') !== 'false';
+        const limit = searchParams.get('limit');
+        const user_id = searchParams.get('user_id');
+
+        const result = await getStall(search, semua, user_id, by_rating, limit);
+        return NextResponse.json({
+            success: true,
+            message: "Successfully retrieved stall data",
+            data: result
+        })
+    } catch (error: any) {
+        return NextResponse.json({
+            success: false,
+            message: error.message
+        })
     }
 }
