@@ -11,6 +11,7 @@ export interface LoginType {
 
 export interface JWTPayload {
     user_id: string,
+    stall_id: string,
     username: string,
     role: string
 }

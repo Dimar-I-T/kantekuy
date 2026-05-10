@@ -1,24 +1,19 @@
 import { StallType } from "@/app/types/types";
 import { cloudinary } from "@/lib/cloudinary";
 import { pool } from "@/lib/db/config";
+import { uploadPicture } from "./uploadPicture";
 
 export async function createStall(user_id: string, { name, description, block_id, phone_number }: StallType, file: File) {
     if (!file) {
         throw Error('No file uploaded');
     }
 
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const base64Image = `data:${file.type};base64,${buffer.toString('base64')}`;
-    const result = await cloudinary.uploader.upload(base64Image, {
-        resource_type: "image",
-        folder: "uploads",
-    });
-
+    const image_url = await uploadPicture(file);
     const res = await pool.query(`
             insert into stalls (owner_id, name, description, picture_url, block_id, phone_number) values
             ($1, $2, $3, $4, $5, $6)
             returning *
-        `, [user_id, name, description, result.secure_url, block_id, phone_number]);
+        `, [user_id, name, description, image_url, block_id, phone_number]);
 
     return res.rows;
 }
@@ -26,14 +21,7 @@ export async function createStall(user_id: string, { name, description, block_id
 export async function editStall(user_id: string, stall_id: string, { name, description, block_id, phone_number }: StallType, file: File | null, existing_url: string | null) {
     let finalImageUrl;
     if (file instanceof File && file.size > 0) {
-        const buffer = Buffer.from(await file.arrayBuffer());
-        const base64Image = `data:${file.type};base64,${buffer.toString('base64')}`;
-        const result = await cloudinary.uploader.upload(base64Image, {
-            resource_type: "image",
-            folder: "uploads",
-        });
-
-        finalImageUrl = result.secure_url;
+        finalImageUrl = await uploadPicture(file);
     } else {
         finalImageUrl = existing_url;
     }
@@ -73,7 +61,7 @@ export async function getStall(search: string | null, semua: boolean | null, use
     }
 
     if (by_rating) {
-        query += ` ORDER BY rating DESC NULLS LAST`;
+        query += ` ORDER BY rating_avg DESC NULLS LAST`;
     } else {
         query += ` ORDER BY created_at DESC`;
     }
