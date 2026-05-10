@@ -68,3 +68,33 @@ export async function getItems(search: string, by_rating: boolean, category: str
     const result = await pool.query(query, values);
     return result.rows;
 }
+
+export async function getItemById(item_id: string) {
+    const result = await pool.query(`
+            select * from items where item_id = $1
+        `, [item_id]);
+
+    return result.rows;
+}
+
+export async function editItem(stall_id: string, category_id: string, file: File, name: string, description: string, price: number, existing_url: string | null, item_id: string) {
+    let finalImageUrl;
+    if (file instanceof File && file.size > 0) {
+        finalImageUrl = await uploadPicture(file);
+    } else {
+        finalImageUrl = existing_url;
+    }
+
+    const res = await pool.query(`
+            update items
+            set name = $1, description = $2, category_id = $3, price = $4, picture_url = $5
+            where item_id = $6 and stall_id = $7
+            returning *
+        `, [name, description, category_id, price, finalImageUrl, item_id, stall_id]);
+    
+    if (res.rows.length == 0) {
+        throw Error('item_id atau stall_id tidak cocok');
+    }
+
+    return res.rows;
+}
