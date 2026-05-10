@@ -4,6 +4,7 @@ import { LoginType, RegisterType } from '@/app/types/types';
 import { cookies } from 'next/headers';
 import jwt from 'jsonwebtoken';
 import { JWTPayload } from 'jose';
+import axios from 'axios';
 
 export async function registerService({ username, email, password }: RegisterType) {
     const hashed = await bcrypt.hash(password, 10);
@@ -38,10 +39,15 @@ export async function loginService({ username, password }: LoginType) {
         throw Error('no secret key');
     }
 
-    const payload: JWTPayload =  {
-        user_id: user.rows[0].user_id,
-        username: user.rows[0].username,
-        role: user.rows[0].role
+    const { password: _, ...userData } = user.rows[0];
+    const response = await axios.get(`${process.env.WEB_URL}/api/stalls?user_id=${userData.user_id}`);
+    let stall_id : string = response.data?.data[0]?.stall_id ? response.data?.data[0]?.stall_id : "";
+    userData['stall_id'] = stall_id;
+    const payload: JWTPayload = {
+        user_id: userData.user_id,
+        stall_id: userData.stall_id,
+        username: userData.username,
+        role: userData.role
     }
 
     const token = jwt.sign(payload, secret, { expiresIn: '24h' });
@@ -52,11 +58,10 @@ export async function loginService({ username, password }: LoginType) {
         maxAge: 60 * 60 * 24
     });
 
-    const { password: _, ...userData } = user.rows[0];
     return userData;
 }
 
 export async function logoutService() {
     const cookie = await cookies();
-    cookie.delete('token'); 
+    cookie.delete('token');
 }

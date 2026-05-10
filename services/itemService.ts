@@ -1,0 +1,70 @@
+import { pool } from "@/lib/db/config";
+import { uploadPicture } from "./uploadPicture";
+
+export async function createItem(stall_id: string, category_id: string, file: File, name: string, description: string, price: number) {
+    if (!file) {
+        throw Error('Tidak ada file picture');
+    }
+
+    const picture_url = await uploadPicture(file);
+    const result = await pool.query(`
+            insert into items (stall_id, category_id, name, description, price, picture_url) values
+            ($1, $2, $3, $4, $5, $6)
+            returning *
+        `, [stall_id, category_id, name, description, price, picture_url]);
+
+    return result.rows;
+}
+
+export async function getItems(search: string, by_rating: boolean, category: string, stall_id: string, limit: string, item_id: string, by_price: string) {
+    let query = `SELECT * FROM items WHERE 1=1`;
+    const values: any[] = [];
+    let valueIndex = 1;
+    if (search) {
+        query += ` AND name ILIKE $${valueIndex}`;
+        values.push(`%${search}%`);
+        valueIndex++;
+    }
+
+    if (stall_id) {
+        query += ` AND stall_id = $${valueIndex}`;
+        values.push(stall_id);
+        valueIndex++;
+    }
+
+    if (item_id) {
+        query += ` AND item_id = $${valueIndex}`;
+        values.push(item_id);
+        valueIndex++;
+    }
+
+    if (category) {
+        query += ` AND category_id = $${valueIndex}`;
+        values.push(category);
+        valueIndex++;
+    }
+
+    let orderByClauses: string[] = [];
+    if (by_price === 'asc' || by_price === 'desc') {
+        orderByClauses.push(`price ${by_price.toUpperCase()}`);
+    } 
+    
+    if (by_rating) {
+        orderByClauses.push(`rating_avg DESC NULLS LAST`);
+    }
+
+    if (orderByClauses.length > 0) {
+        query += ` ORDER BY ${orderByClauses.join(', ')}`;
+    } else {
+        query += ` ORDER BY created_at DESC`;
+    }
+
+    if (limit && !isNaN(Number(limit))) {
+        query += ` LIMIT $${valueIndex}`;
+        values.push(Number(limit));
+        valueIndex++;
+    }
+
+    const result = await pool.query(query, values);
+    return result.rows;
+}
