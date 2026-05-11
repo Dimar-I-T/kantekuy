@@ -40,13 +40,19 @@ export async function editStall(user_id: string, stall_id: string, { name, descr
     return res.rows;
 }
 
-export async function getStall(search: string | null, semua: boolean | null, user_id: string | null, by_rating: boolean | null, limit: string | null) {
+export async function getStall(search: string | null, semua: boolean | null, user_id: string | null, by_rating: boolean | null, limit: string | null, block_id : string | null) {
     let query = `SELECT * FROM stalls WHERE 1=1`;
     const values: any[] = [];
     let valueIndex = 1;
     if (search) {
         query += ` AND name ILIKE $${valueIndex}`;
         values.push(`%${search}%`);
+        valueIndex++;
+    }
+
+    if (block_id && !isNaN(Number(block_id))) {
+        query += ` AND block_id = $${valueIndex}`;
+        values.push(Number(block_id));
         valueIndex++;
     }
 
