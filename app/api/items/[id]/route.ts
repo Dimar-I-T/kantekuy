@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { deleteItem, editItem, getItemById, setItemStatus } from "@/services/itemService";
 import axios from "axios";
+import { getAuth } from "@/lib/auth";
 
 interface RouteParams {
     params: Promise<{
@@ -21,7 +22,7 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
         return NextResponse.json({
             success: false,
             message: error.message
-        });
+        }, { status: 500 });
     }
 }
 
@@ -70,7 +71,7 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
 
 export async function DELETE(req: NextRequest, { params }: RouteParams) {
     try {
-        const {id: item_id} = await params;
+        const { id: item_id } = await params;
         const cookieHeader = req.headers.get('cookie') ?? '';
         const res = await axios.get(`${process.env.WEB_URL}/api/auth/me`,
             {
@@ -92,14 +93,21 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
         return NextResponse.json({
             success: false,
             message: error.message
-        })
+        }, { status: 500 })
     }
 }
 
-export async function PATCH(req: NextRequest, { params } : RouteParams) {
+export async function PATCH(req: NextRequest, { params }: RouteParams) {
     try {
         const { id: item_id } = await params;
         const { status } = await req.json();
+        const user = await getAuth();
+        if (!user) {
+            return NextResponse.json({
+                success: false,
+                message: "Unauthorized"
+            }, { status: 401 });
+        }
 
         const result = await setItemStatus(item_id, status);
         return NextResponse.json({
@@ -111,6 +119,6 @@ export async function PATCH(req: NextRequest, { params } : RouteParams) {
         return NextResponse.json({
             success: false,
             message: error.message
-        })
+        }, { status: 500 })
     }
 }
