@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { JWTPayload } from "@/app/types/types";
 import { getAuth } from "@/lib/auth";
-import { editItem, getItemById } from "@/services/itemService";
+import { deleteItem, editItem, getItemById } from "@/services/itemService";
 
 interface RouteParams {
     params: Promise<{
@@ -63,5 +63,30 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
             success: false,
             message: error.message
         }, { status: 500 })
+    }
+}
+
+export async function DELETE(req: NextRequest, { params }: RouteParams) {
+    try {
+        const {id: item_id} = await params;
+        const user: JWTPayload | null = await getAuth();
+        if (!user) {
+            return NextResponse.json({
+                success: false,
+                message: "Unauthorized!"
+            }, { status: 404 });
+        }
+
+        const result = await deleteItem(item_id, user.stall_id);
+        return NextResponse.json({
+            success: true,
+            message: "Successfully deleted item",
+            data: result
+        })
+    } catch (error: any) {
+        return NextResponse.json({
+            success: false,
+            message: error.message
+        })
     }
 }

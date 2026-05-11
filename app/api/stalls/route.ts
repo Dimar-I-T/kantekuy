@@ -44,12 +44,13 @@ export async function GET(req: NextRequest) {
     try {
         const searchParams = req.nextUrl.searchParams;
         const search = searchParams.get('search');
+        const block_id = searchParams.get('block_id');
         const by_rating = searchParams.get('by_rating') === 'true';
         const semua = searchParams.get('semua') !== 'false';
         const limit = searchParams.get('limit');
         const user_id = searchParams.get('user_id');
 
-        const result = await getStall(search, semua, user_id, by_rating, limit);
+        const result = await getStall(search, semua, user_id, by_rating, limit, block_id);
         return NextResponse.json({
             success: true,
             message: "Successfully retrieved stall data",

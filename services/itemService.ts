@@ -17,7 +17,12 @@ export async function createItem(stall_id: string, category_id: string, file: Fi
 }
 
 export async function getItems(search: string, by_rating: boolean, category: string, stall_id: string, limit: string, item_id: string, by_price: string) {
-    let query = `SELECT * FROM items WHERE 1=1`;
+    let query = `
+        select item_id, stall_id, categories.name as category, items.name as name, description, price, rating_avg, picture_url, created_at 
+        from items 
+        join categories
+        on categories.category_id = items.category_id
+        WHERE 1=1`;
     const values: any[] = [];
     let valueIndex = 1;
     if (search) {
@@ -39,7 +44,7 @@ export async function getItems(search: string, by_rating: boolean, category: str
     }
 
     if (category) {
-        query += ` AND category_id = $${valueIndex}`;
+        query += ` AND categories.name = $${valueIndex}`;
         values.push(category);
         valueIndex++;
     }
@@ -97,4 +102,17 @@ export async function editItem(stall_id: string, category_id: string, file: File
     }
 
     return res.rows;
+}
+
+export async function deleteItem(item_id : string, stall_id : string) {
+    const result = await pool.query(`
+            delete from items where item_id = $1 and stall_id = $2
+            returning *
+        `, [item_id, stall_id]);
+    
+    if (result.rows.length === 0) {
+        throw Error('item_id dan stall_id tidak cocok');
+    }
+
+    return result.rows;
 }
