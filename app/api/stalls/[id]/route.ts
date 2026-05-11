@@ -1,7 +1,6 @@
-import { deleteStallById, editStall, getStallById } from "@/services/stallService";
+import { closeStallById, deleteStallById, editStall, getStallById } from "@/services/stallService";
 import { NextRequest, NextResponse } from "next/server";
-import { JWTPayload } from "@/app/types/types";
-import { getAuth } from "@/lib/auth";
+import axios from "axios";
 
 interface RouteParams {
     params: Promise<{
@@ -43,13 +42,16 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
             });
         }
 
-        const user: JWTPayload | null = await getAuth();
-        if (!user) {
-            return NextResponse.json({
-                success: false,
-                message: "Unauthorized!"
-            }, { status: 404 });
-        }
+        const cookieHeader = req.headers.get('cookie') ?? '';
+        const res = await axios.get(`${process.env.WEB_URL}/api/auth/me`,
+            {
+                headers: {
+                    Cookie: cookieHeader
+                }
+            }
+        );
+
+        const user = res.data.data;
 
         const result = await editStall(user.user_id, stall_id, { name, description, block_id, phone_number }, file, existing_url);
         return NextResponse.json({
@@ -65,16 +67,39 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
     }
 }
 
+export async function PATCH(req: NextRequest, { params }: RouteParams) {
+    try {
+        const {id: stall_id} = await params;
+        const {is_open} = await req.json();
+
+        const result = await closeStallById(stall_id, is_open);
+        return NextResponse.json({
+            success: true,
+            message: "Successfully open or close stall",
+            data: result
+        });
+    } catch (error: any) {
+        return NextResponse.json({
+            success: false,
+            error: error.message
+        }, {status: 500});
+    }
+}
+
 export async function DELETE(req: NextRequest, { params }: RouteParams) {
     try {
         const { id: stall_id } = await params;
-        const user: JWTPayload | null = await getAuth();
-        if (!user) {
-            return NextResponse.json({
-                success: false,
-                message: "Unauthorized!"
-            }, { status: 404 });
-        }
+        const cookieHeader = req.headers.get('cookie') ?? '';
+        const res = await axios.get(`${process.env.WEB_URL}/api/auth/me`,
+            {
+                headers: {
+                    Cookie: cookieHeader
+                }
+            }
+        );
+
+        const user = res.data.data;
+        console.log(JSON.stringify(user));
 
         const result = await deleteStallById(stall_id, user.user_id);
         return NextResponse.json({
@@ -86,6 +111,6 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
         return NextResponse.json({
             success: false,
             message: error.message
-        })
+        }, {status: 500})
     }
 }

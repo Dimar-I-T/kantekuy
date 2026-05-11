@@ -57,7 +57,7 @@ export async function createReview(user_id: string, stall_id: string, item_id: s
         }
 
         await pool.query('COMMIT');
-        return result.rows;
+        return result.rows[0];
     } catch (error) {
         await pool.query('ROLLBACK');
         throw error;
