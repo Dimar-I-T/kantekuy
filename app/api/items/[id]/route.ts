@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { JWTPayload } from "@/app/types/types";
 import { getAuth } from "@/lib/auth";
-import { deleteItem, editItem, getItemById } from "@/services/itemService";
+import { deleteItem, editItem, getItemById, setItemStatus } from "@/services/itemService";
 
 interface RouteParams {
     params: Promise<{
@@ -83,6 +83,25 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
             message: "Successfully deleted item",
             data: result
         })
+    } catch (error: any) {
+        return NextResponse.json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
+export async function PATCH(req: NextRequest, { params } : RouteParams) {
+    try {
+        const { id: item_id } = await params;
+        const { status } = await req.json();
+
+        const result = await setItemStatus(item_id, status);
+        return NextResponse.json({
+            success: true,
+            message: "Successfully set item status",
+            data: result
+        });
     } catch (error: any) {
         return NextResponse.json({
             success: false,

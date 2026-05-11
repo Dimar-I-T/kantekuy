@@ -1,4 +1,4 @@
-import { deleteStallById, editStall, getStallById } from "@/services/stallService";
+import { closeStallById, deleteStallById, editStall, getStallById } from "@/services/stallService";
 import { NextRequest, NextResponse } from "next/server";
 import { JWTPayload } from "@/app/types/types";
 import { getAuth } from "@/lib/auth";
@@ -65,6 +65,25 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
     }
 }
 
+export async function PATCH(req: NextRequest, { params }: RouteParams) {
+    try {
+        const {id: stall_id} = await params;
+        const {is_open} = await req.json();
+
+        const result = await closeStallById(stall_id, is_open);
+        return NextResponse.json({
+            success: true,
+            message: "Successfully open or close stall",
+            data: result
+        });
+    } catch (error: any) {
+        return NextResponse.json({
+            success: false,
+            error: error.message
+        }, {status: 500});
+    }
+}
+
 export async function DELETE(req: NextRequest, { params }: RouteParams) {
     try {
         const { id: stall_id } = await params;
@@ -86,6 +105,6 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
         return NextResponse.json({
             success: false,
             message: error.message
-        })
+        }, {status: 500})
     }
 }

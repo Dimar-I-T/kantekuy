@@ -102,3 +102,37 @@ export async function deleteStallById(stall_id: string, user_id: string) {
 
     return result.rows;
 }
+
+export async function closeStallById(stall_id: string, is_open: string) {
+    try {
+        await pool.query('BEGIN');
+        const closeStall = await pool.query(`
+                update stalls
+                set is_open = $1
+                where stall_id = $2
+                returning *
+            `, [is_open, stall_id]);
+        
+        if (closeStall.rows.length === 0) {
+            throw Error('Id salah');
+        }
+
+        const valueStatus = is_open === "true" ? "tersedia" : "tutup"; 
+        const updateStatusItem = await pool.query(`
+                update items
+                set status = $1
+                where stall_id = $2
+                returning *    
+            `, [valueStatus, stall_id]);
+        
+        if (updateStatusItem.rows.length === 0) {
+            throw Error('Gagal update items');
+        }
+
+        await pool.query('COMMIT');
+        return closeStall.rows;
+    } catch (error) {
+        await pool.query('ROLLBACK');
+        throw error;
+    }
+}

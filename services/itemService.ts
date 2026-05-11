@@ -18,7 +18,7 @@ export async function createItem(stall_id: string, category_id: string, file: Fi
 
 export async function getItems(search: string, by_rating: boolean, category: string, stall_id: string, limit: string, item_id: string, by_price: string) {
     let query = `
-        select item_id, stall_id, categories.name as category, items.name as name, description, price, rating_avg, picture_url, created_at 
+        select item_id, stall_id, categories.name as category, items.name as name, description, price, rating_avg, picture_url, status, created_at 
         from items 
         join categories
         on categories.category_id = items.category_id
@@ -52,8 +52,8 @@ export async function getItems(search: string, by_rating: boolean, category: str
     let orderByClauses: string[] = [];
     if (by_price === 'asc' || by_price === 'desc') {
         orderByClauses.push(`price ${by_price.toUpperCase()}`);
-    } 
-    
+    }
+
     if (by_rating) {
         orderByClauses.push(`rating_avg DESC NULLS LAST`);
     }
@@ -96,7 +96,7 @@ export async function editItem(stall_id: string, category_id: string, file: File
             where item_id = $6 and stall_id = $7
             returning *
         `, [name, description, category_id, price, finalImageUrl, item_id, stall_id]);
-    
+
     if (res.rows.length == 0) {
         throw Error('item_id atau stall_id tidak cocok');
     }
@@ -104,15 +104,30 @@ export async function editItem(stall_id: string, category_id: string, file: File
     return res.rows;
 }
 
-export async function deleteItem(item_id : string, stall_id : string) {
+export async function deleteItem(item_id: string, stall_id: string) {
     const result = await pool.query(`
             delete from items where item_id = $1 and stall_id = $2
             returning *
         `, [item_id, stall_id]);
-    
+
     if (result.rows.length === 0) {
         throw Error('item_id dan stall_id tidak cocok');
     }
 
     return result.rows;
+}
+
+export async function setItemStatus(item_id: string, status: string) {
+    try {
+        const result = await pool.query(`
+                update items
+                set status = $1
+                where item_id = $2
+                returning *
+            `, [status, item_id]);
+
+        return result.rows;
+    } catch (error) {
+        throw error;
+    }
 }
