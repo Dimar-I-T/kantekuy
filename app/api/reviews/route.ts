@@ -1,18 +1,20 @@
 import { createReview, getReview } from "@/services/reviewService";
 import { NextRequest, NextResponse } from "next/server";
-import { JWTPayload } from "@/app/types/types";
-import { getAuth } from "@/lib/auth";
+import axios from "axios";
 
 export async function POST(req: NextRequest) {
     try {
         const { stall_id, item_id, comment, rating } = await req.json();
-        const user: JWTPayload | null = await getAuth();
-        if (!user) {
-            return NextResponse.json({
-                success: false,
-                message: "Unauthorized!"
-            }, { status: 404 });
-        }
+        const cookieHeader = req.headers.get('cookie') ?? '';
+        const res = await axios.get(`${process.env.WEB_URL}/api/auth/me`,
+            {
+                headers: {
+                    Cookie: cookieHeader
+                }
+            }
+        );
+
+        const user = res.data.data;
 
         const result = await createReview(user.user_id, stall_id, item_id, comment, rating);
         return NextResponse.json({

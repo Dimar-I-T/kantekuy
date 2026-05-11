@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { JWTPayload } from "@/app/types/types";
-import { getAuth } from "@/lib/auth";
+import axios from "axios";
 import { createItem, getItems } from "@/services/itemService";
 
 export async function POST(req: NextRequest) {
@@ -19,14 +18,17 @@ export async function POST(req: NextRequest) {
             }, {status: 400});
         }
 
-        const user: JWTPayload | null = await getAuth();
-        if (!user) {
-            return NextResponse.json({
-                success: false,
-                message: "Unauthorized!"
-            }, { status: 404 });
-        }
-        
+        const cookieHeader = req.headers.get('cookie') ?? '';
+        const res = await axios.get(`${process.env.WEB_URL}/api/auth/me`,
+            {
+                headers: {
+                    Cookie: cookieHeader
+                }
+            }
+        );
+
+        const user = res.data.data;
+
         const result = await createItem(user.stall_id, category_id, file, name, description, priceNumber);
 
         return NextResponse.json({
@@ -56,7 +58,7 @@ export async function GET(req: NextRequest) {
         const result = await getItems(search, by_rating, category, stall_id, limit, item_id, by_price);
         return NextResponse.json({
             success: true,
-            message: "Successfully retrieved stall data",
+            message: "Successfully retrieved items",
             data: result
         })
     } catch (error: any) {

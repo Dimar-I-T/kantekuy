@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { JWTPayload } from "@/app/types/types";
-import { getAuth } from "@/lib/auth";
 import { deleteItem, editItem, getItemById, setItemStatus } from "@/services/itemService";
+import axios from "axios";
 
 interface RouteParams {
     params: Promise<{
@@ -37,20 +36,23 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
         const file = formData.get('file') as File;
         const existing_url = formData.get('picture_url') as string;
         const priceNumber = parseInt(price);
-        if (!name || !price || !category_id || !description || !file) {
+        if (!name || !price || !category_id || !description) {
             return NextResponse.json({
                 success: false,
                 message: "Data tidak lengkap"
             }, { status: 400 });
         }
 
-        const user: JWTPayload | null = await getAuth();
-        if (!user) {
-            return NextResponse.json({
-                success: false,
-                message: "Unauthorized!"
-            }, { status: 404 });
-        }
+        const cookieHeader = req.headers.get('cookie') ?? '';
+        const res = await axios.get(`${process.env.WEB_URL}/api/auth/me`,
+            {
+                headers: {
+                    Cookie: cookieHeader
+                }
+            }
+        );
+
+        const user = res.data.data;
 
         const result = await editItem(user.stall_id, category_id, file, name, description, priceNumber, existing_url, item_id);
         return NextResponse.json({
@@ -69,13 +71,16 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
 export async function DELETE(req: NextRequest, { params }: RouteParams) {
     try {
         const {id: item_id} = await params;
-        const user: JWTPayload | null = await getAuth();
-        if (!user) {
-            return NextResponse.json({
-                success: false,
-                message: "Unauthorized!"
-            }, { status: 404 });
-        }
+        const cookieHeader = req.headers.get('cookie') ?? '';
+        const res = await axios.get(`${process.env.WEB_URL}/api/auth/me`,
+            {
+                headers: {
+                    Cookie: cookieHeader
+                }
+            }
+        );
+
+        const user = res.data.data;
 
         const result = await deleteItem(item_id, user.stall_id);
         return NextResponse.json({

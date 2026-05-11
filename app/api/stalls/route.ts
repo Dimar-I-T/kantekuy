@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { JWTPayload } from "@/app/types/types";
-import { getAuth } from "@/lib/auth";
 import { createStall, getStall } from "@/services/stallService";
+import axios from "axios";
 
 export async function POST(req: NextRequest) {
     try {
@@ -18,15 +17,17 @@ export async function POST(req: NextRequest) {
             });
         }
 
-        const user: JWTPayload | null = await getAuth();
-        if (!user) {
-            return NextResponse.json({
-                success: false,
-                message: "Unauthorized!"
-            }, { status: 404 });
-        }
+        const cookieHeader = req.headers.get('cookie') ?? '';
+        const res = await axios.get(`${process.env.WEB_URL}/api/auth/me`,
+            {
+                headers: {
+                    Cookie: cookieHeader
+                }
+            }
+        );
 
-        const result = await createStall(user.user_id, {name, description, block_id, phone_number}, file);
+        const user = res.data.data;
+        const result = await createStall(user.user_id, { name, description, block_id, phone_number }, file);
         return NextResponse.json({
             success: true,
             message: "Successfully created Stall",

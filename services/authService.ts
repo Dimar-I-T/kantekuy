@@ -2,9 +2,7 @@ import bcrypt from 'bcrypt';
 import { pool } from '@/lib/db/config';
 import { LoginType, RegisterType } from '@/app/types/types';
 import { cookies } from 'next/headers';
-import jwt from 'jsonwebtoken';
 import { JWTPayload } from 'jose';
-import axios from 'axios';
 
 export async function registerService({ username, email, password }: RegisterType) {
     const hashed = await bcrypt.hash(password, 10);
@@ -19,7 +17,6 @@ export async function registerService({ username, email, password }: RegisterTyp
 }
 
 export async function loginService({ username, password }: LoginType) {
-    const cookieStore = await cookies();
     const user = await pool.query(`
             select * from users where username = $1
         `, [username]);
@@ -40,25 +37,27 @@ export async function loginService({ username, password }: LoginType) {
     }
 
     const { password: _, ...userData } = user.rows[0];
-    const response = await axios.get(`${process.env.WEB_URL}/api/stalls?user_id=${userData.user_id}`);
-    let stall_id : string = response.data?.data[0]?.stall_id ? response.data?.data[0]?.stall_id : "";
-    userData['stall_id'] = stall_id;
     const payload: JWTPayload = {
         user_id: userData.user_id,
-        stall_id: userData.stall_id,
-        username: userData.username,
         role: userData.role
     }
 
-    const token = jwt.sign(payload, secret, { expiresIn: '24h' });
-    cookieStore.set('token', token, {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        maxAge: 60 * 60 * 24
-    });
+    return payload;
+}
 
-    return userData;
+export async function getUserData(user_id : string) {
+    try {
+        const result = await pool.query(`
+                select user_id, username, email, role, stall_id
+                from users
+                left join stalls
+                on users.user_id = stalls.owner_id
+                where user_id = $1
+            `, [user_id]);
+        return result.rows[0];
+    } catch (error) {
+        throw error;
+    }
 }
 
 export async function logoutService() {
