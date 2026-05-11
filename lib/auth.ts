@@ -6,8 +6,7 @@ export async function getAuth(): Promise<JWTPayload | null> {
     const cookie = await cookies();
     const token = cookie.get('token')?.value;
     if (!token) {
-        console.log('Unauthorized!');
-        return null;
+        throw Error('Unauthorized! You must login');
     }
 
     try {

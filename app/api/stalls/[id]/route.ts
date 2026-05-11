@@ -1,6 +1,7 @@
 import { closeStallById, deleteStallById, editStall, getStallById } from "@/services/stallService";
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
+import { getAuth } from "@/lib/auth";
 
 interface RouteParams {
     params: Promise<{
@@ -69,8 +70,16 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
 
 export async function PATCH(req: NextRequest, { params }: RouteParams) {
     try {
-        const {id: stall_id} = await params;
-        const {is_open} = await req.json();
+        const { id: stall_id } = await params;
+        const { is_open } = await req.json();
+
+        const user = await getAuth();
+        if (!user) {
+            return NextResponse.json({
+                success: false,
+                message: "Unauthorized"
+            }, { status: 401 });
+        }
 
         const result = await closeStallById(stall_id, is_open);
         return NextResponse.json({
@@ -82,7 +91,7 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
         return NextResponse.json({
             success: false,
             error: error.message
-        }, {status: 500});
+        }, { status: 500 });
     }
 }
 
@@ -111,6 +120,6 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
         return NextResponse.json({
             success: false,
             message: error.message
-        }, {status: 500})
+        }, { status: 500 })
     }
 }
