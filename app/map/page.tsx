@@ -73,10 +73,10 @@ export default function MapPage() {
                 height={1080}
                 alt="bg"
                 src={'/bg.png'}
-                className="absolute top-0 z-0"
+                className="absolute top-0 z-0 object-cover w-screen"
             />
             <div className=" h-20"/>
-            <main className="flex flex-col items-center px-4 py-8">
+            <main className="relative flex flex-col items-center px-4 py-8">
                 <section className="relative w-full max-w-4xl overflow-hidden rounded-4xl px-10 bg-gray-200">
                     <div className="relative z-10 flex flex-col gap-6">
                         {
@@ -97,11 +97,13 @@ export default function MapPage() {
                                 )
                             }
 
-                            {error && (
-                                <div className="flex col-span-full rounded-3xl h-96 p-10 justify-center items-center text-red-500">
-                                    {error}
-                                </div>
-                            )}
+                            {
+                                error && (
+                                    <div className="flex col-span-full rounded-3xl h-96 p-10 justify-center items-center text-red-500">
+                                        {error}
+                                    </div>
+                                )
+                            }
 
                             {!loading && !error && mappedSlots.map((slot) => {
                                 const stall = slot.stall;
@@ -191,7 +193,7 @@ export default function MapPage() {
                     </section>
                 )}
             </main>
-            <div className=" h-30"/>
+            <div className=" h-20"/>
             <footer className="fixed bottom-0 flex flex-row items-center justify-center bg-black border-t border-gray-100 w-screen h-fit gap-5 py-2 z-50">
                 <div className="flex flex-row items-center justify-center gap-2">
                     <div className="rounded-full w-3 h-3 border border-white bg-green-400"/>
