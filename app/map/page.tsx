@@ -24,14 +24,14 @@ type Slot = {
 };
 
 const slots: Slot[] = [
-    { id: "a1", label: "A1", blockId: 1 },
-    { id: "a2", label: "A2", blockId: 2 },
-    { id: "a3", label: "A3", blockId: 3 },
-    { id: "a4", label: "A4", blockId: 4 },
-    { id: "b1", label: "B1", blockId: 5 },
-    { id: "b2", label: "B2", blockId: 6 },
-    { id: "b3", label: "B3", blockId: 7 },
-    { id: "b4", label: "B4", blockId: 8 },
+    { id: "a1", label: "Blok 1", blockId: 1 },
+    { id: "a2", label: "Blok 2", blockId: 2 },
+    { id: "a3", label: "Blok 3", blockId: 3 },
+    { id: "a4", label: "Blok 4", blockId: 4 },
+    { id: "b1", label: "Blok 5", blockId: 5 },
+    { id: "b2", label: "Blok 6", blockId: 6 },
+    { id: "b3", label: "Blok 7", blockId: 7 },
+    { id: "b4", label: "Blok 8", blockId: 8 },
 ];
 
 export default function MapPage() {
