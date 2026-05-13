@@ -1,21 +1,42 @@
 'use strict';
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { Search, User } from 'lucide-react';
 
+interface UserData {
+  username: string;
+  role: string;
+}
+
 export default function ClientNavbar() {
   const router = useRouter();
   const pathname = usePathname();
-  const [currentUser, setCurrentUser] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<UserData | null>(null);
   const [mounted, setMounted] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const checkAuth = () => {
-    const user = localStorage.getItem('kantekuy_user');
-    setCurrentUser(user);
+  const checkAuth = async () => {
+    try {
+      const res = await fetch('/api/auth/me');
+      const json = await res.json();
+      
+      if (json.success) {
+        setCurrentUser({
+          username: json.data.username,
+          role: json.data.role
+        });
+        localStorage.setItem('kantekuy_user', json.data.username);
+      } else {
+        setCurrentUser(null);
+        localStorage.removeItem('kantekuy_user');
+      }
+    } catch (err) {
+      setCurrentUser(null);
+    }
   };
 
   useEffect(() => {
@@ -23,29 +44,12 @@ export default function ClientNavbar() {
     checkAuth();
 
     const handleScroll = () => {
-      if (window.scrollY > 10) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
+      setIsScrolled(window.scrollY > 10);
     };
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [pathname]);
-
-  useEffect(() => {
-    const interval = setInterval(checkAuth, 1000);
-    const handleAuth = () => checkAuth();
-    window.addEventListener('auth-change', handleAuth);
-    window.addEventListener('storage', handleAuth);
-
-    return () => {
-      clearInterval(interval);
-      window.removeEventListener('auth-change', handleAuth);
-      window.removeEventListener('storage', handleAuth);
-    };
-  }, []);
 
   const handleLogout = async () => {
     try {
@@ -55,6 +59,13 @@ export default function ClientNavbar() {
     setCurrentUser(null);
     router.push('/');
     router.refresh();
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/items?search=${encodeURIComponent(searchQuery.trim())}`);
+    }
   };
 
   if (!mounted) return null;
@@ -76,14 +87,19 @@ export default function ClientNavbar() {
           />
           <span className="text-xl font-bold tracking-tight text-[#0F172A]">KanteKuy</span>
         </Link>
-        <div className="hidden lg:flex items-center bg-[#F8FAFC] px-3 py-1.5 rounded-full border border-black w-80">
+        <form 
+          onSubmit={handleSearch}
+          className="hidden lg:flex items-center bg-[#F8FAFC] px-3 py-1.5 rounded-full border border-black w-80"
+        >
           <Search className="text-gray-400 w-4 h-4 mr-2" />
           <input 
             type="text" 
             placeholder="Cari menu favoritmu..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="bg-transparent border-none focus:ring-0 text-sm w-full outline-none text-[#1E293B]"
           />
-        </div>
+        </form>
       </div>
       
       <div className="flex items-center gap-6 text-sm font-medium">
@@ -96,7 +112,7 @@ export default function ClientNavbar() {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1.5 text-[#0F172A]">
               <User className="w-4 h-4 fill-current" />
-              <span className="font-bold">{currentUser}</span>
+              <span className="font-bold">{currentUser.username}</span>
             </div>
             <button 
               onClick={handleLogout} 
@@ -111,9 +127,12 @@ export default function ClientNavbar() {
           </Link>
         )}
         
-        <button className="bg-[#0F172A] text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity font-bold cursor-pointer shadow-sm">
-          Buka Toko
-        </button>
+        <Link 
+          href={currentUser?.role === 'seller' ? '/dashboard' : '/stalls/register'}
+          className="bg-[#0F172A] text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity font-bold cursor-pointer shadow-sm"
+        >
+          {currentUser?.role === 'seller' ? 'Dashboard' : 'Buka Toko'}
+        </Link>
       </div>
     </nav>
   );
