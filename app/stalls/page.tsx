@@ -115,7 +115,6 @@ export default function StallsPage() {
                 className="appearance-none bg-white border border-black rounded-lg px-4 py-2 pr-10 text-xs font-bold focus:outline-none cursor-pointer"
               >
                 <option value="rating">Rating Tertinggi</option>
-                <option value="default">Terbaru</option>
               </select>
               <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
                 <ChevronRight className="w-4 h-4 rotate-90 text-black" />
