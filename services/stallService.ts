@@ -63,14 +63,14 @@ export async function editStall(user_id: string, stall_id: string, { name, descr
 
 export async function getStall(search: string | null, semua: boolean | null, user_id: string | null, by_rating: boolean | null, limit: string | null, block_id: string | null) {
     let query = `
-        select stalls.stall_id as stall_id, owner_id, block_id, name, phone_number, description, picture_url, rating_avg, is_open, created_at, min_price_item.min_price as min_price 
+        select stalls.stall_id as stall_id, owner_id, block_id, name, phone_number, description, picture_url, rating_avg, is_open, created_at, aggregated_data.min_price as min_price, aggregated_data.max_price as max_price
         from stalls
         left join (
-            select stall_id, min(price) as min_price
+            select stall_id, min(price) as min_price, max(price) as max_price
             from items
             group by stall_id
-        ) as min_price_item
-        on stalls.stall_id = min_price_item.stall_id
+        ) as aggregated_data
+        on stalls.stall_id = aggregated_data.stall_id
         where 1=1
     `
     //let query = `SELECT * FROM stalls WHERE 1=1`;
@@ -116,14 +116,14 @@ export async function getStall(search: string | null, semua: boolean | null, use
 
 export async function getStallById(stall_id: string) {
     const result = await pool.query(`
-            select stalls.stall_id as stall_id, owner_id, block_id, name, phone_number, description, picture_url, rating_avg, is_open, created_at, min_price_item.min_price as min_price 
+            select stalls.stall_id as stall_id, owner_id, block_id, name, phone_number, description, picture_url, rating_avg, is_open, created_at, aggregated_data.min_price as min_price, aggregated_data.max_price as max_price
             from stalls
             left join (
-                select stall_id, min(price) as min_price
+                select stall_id, min(price) as min_price, max(price) as max_price
                 from items
                 group by stall_id
-            ) as min_price_item
-            on stalls.stall_id = min_price_item.stall_id
+            ) as aggregated_data
+            on stalls.stall_id = aggregated_data.stall_id
             where stalls.stall_id = $1
         `, [stall_id]);
 
