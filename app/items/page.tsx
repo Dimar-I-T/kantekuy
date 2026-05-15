@@ -52,6 +52,7 @@ export default function ItemsPage() {
                 setCategories(category.data.map((c: { category_id: string; name: string }) => c.name));
                 setItems(data.data ?? []);
             } catch (err: any) {
+                setLoading(false);
                 setError(err.message || "Terjadi kesalahan");
             } finally {
                 setLoading(false);

@@ -161,7 +161,7 @@ export default function MapPage() {
 
                             <div className="flex flex-col mx-7 my-2">
                                 <div className="flex flex-row items-start justify-between mb-5">
-                                    <div className="">
+                                    <div className="max-w-4/5">
                                         <h3 className="text-2xl font-bold mb-2">{selectedStall.name}</h3>
                                         <p className="text-sm ">{selectedStall.description}</p>
                                     </div>
@@ -177,7 +177,15 @@ export default function MapPage() {
                                     </div>
                                     <div className="w-1/2 p-4">
                                         <p className="text-xs italic">Harga</p>
-                                        <p className="mt-3 text-base font-medium">{selectedStall.min_price ? `Rp ${selectedStall.min_price.toLocaleString()}` : "Rp 0"} - {selectedStall.max_price ? `Rp ${selectedStall.max_price.toLocaleString()}` : "Rp 0"}</p>
+                                        <p className="mt-3 text-base font-medium">
+                                            {
+                                                selectedStall.max_price > selectedStall.max_price ? `${selectedStall.min_price ? 
+                                                `Rp ${selectedStall.min_price.toLocaleString()}` : "Rp 0"} - ${selectedStall.max_price ? `Rp ${selectedStall.max_price.toLocaleString()}` : "Rp 0"}` 
+                                                : 
+                                                `${selectedStall.min_price ? 
+                                                `Rp ${selectedStall.min_price.toLocaleString()}+` : "Rp 0"}`
+                                            }
+                                        </p>
                                     </div>
                                 </div>
 
