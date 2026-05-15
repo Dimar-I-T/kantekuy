@@ -15,7 +15,6 @@ export async function POST(req: NextRequest) {
             expiresIn: "24h"
         });
 
-        console.log("token from login = " + token);
         const response = NextResponse.json({
             success: true,
             message: "Successfully logged in",
