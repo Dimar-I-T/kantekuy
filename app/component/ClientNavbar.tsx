@@ -128,7 +128,7 @@ export default function ClientNavbar() {
         )}
         
         <Link 
-          href={currentUser?.role === 'seller' ? '/dashboard' : '/stalls/register'}
+          href={currentUser?.role === 'seller' ? '/dashboard' : '/dashboard/register-stall'}
           className="bg-[#0F172A] text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity font-bold cursor-pointer shadow-sm"
         >
           {currentUser?.role === 'seller' ? 'Dashboard' : 'Buka Toko'}
