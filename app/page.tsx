@@ -221,15 +221,15 @@ export default async function LandingPage() {
               <ul className="space-y-2 text-white/80">
                 <li><Link href="/stalls" className="hover:text-white transition-colors">Cari Stall</Link></li>
                 <li><Link href="/map" className="hover:text-white transition-colors">Peta Kantin</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Buku Toko</Link></li>
               </ul>
             </div>
             <div className="space-y-3">
-              <p className="font-bold uppercase tracking-wider text-white/40">Bantuan</p>
+              <p className="font-bold uppercase tracking-wider text-white/40">Author</p>
               <ul className="space-y-2 text-white/80">
-                <li><Link href="#" className="hover:text-white transition-colors">FAQ</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Kontak Kami</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Kebijakan</Link></li>
+                <li><Link href="https://www.instagram.com/dimar_tamara?igsh=dDN5aTZ3NmdlYTk4&utm_source=qr" className="hover:text-white transition-colors">Dimar</Link></li>
+                <li><Link href="https://www.instagram.com/nopalowcortisol?igsh=MTRtNW56ampmYTdscA==" className="hover:text-white transition-colors">Naufal</Link></li>
+                <li><Link href="https://instagram.com/malikprasetyo_" className="hover:text-white transition-colors">Malik</Link></li>
+                <li><Link href="https://www.instagram.com/raihanmunaf?igsh=MXRseTg5ZmYyeHc4bg==" className="hover:text-white transition-colors">Raihan</Link></li>
               </ul>
             </div>
           </div>
