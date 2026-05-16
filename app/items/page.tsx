@@ -27,13 +27,13 @@ export default function ItemsPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [sort, setSort] = useState<"Rating" | "Harga" | "">("");
-    
+
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
     const [categories, setCategories] = useState<string[]>([]);
     const searchParams = useSearchParams();
     const [search, setSearch] = useState(searchParams.get("search") ?? "");
     const [selectedItem, setSelectedItem] = useState<Items | null>(null);
-    
+
     useEffect(() => {
         async function loadItems() {
             setLoading(true);
@@ -45,7 +45,7 @@ export default function ItemsPage() {
                     throw new Error(data.message || "Gagal mengambil data");
                 }
                 const responseCategories = await fetch("/api/categories");
-                const category = await responseCategories.json(); 
+                const category = await responseCategories.json();
                 if (!responseCategories.ok) {
                     throw new Error(category.message || "Gagal mengambil kategori");
                 }
@@ -106,7 +106,7 @@ export default function ItemsPage() {
         return `Rp${price}`;
     }
 
-    async function handleOrder (item:Items) {
+    async function handleOrder(item: Items) {
         const stall = await fetch(`/api/stalls/${item.stall_id}`)
         const data = await stall.json();
         const message = `Halo ${item.stall_name}, saya ingin memesan ${item.name} melalui KanteKuy.`;
@@ -121,14 +121,14 @@ export default function ItemsPage() {
     const displayedItems = getDisplayedItems();
 
     return (
-        <div className="flex flex-col w-full min-h-screen">
-            <header className="flex flex-col min-h-1/4 py-15 px-10 border-b">
+        <div className="flex flex-col w-full min-h-screen bg-white">
+            <header className="flex flex-col min-h-1/4 py-15 px-10 max-md:px-5 max-md:py-10 border-b">
                 <h1 className="text-4xl font-bold">Item Explorer</h1>
-                <div className="flex flex-row justify-between items-center">
+                <div className="flex flex-row justify-between items-center max-md:items-start max-md:flex-col">
                     <h3 className="mt-3">
                         Temukan menu spesifik dari seluruh stall di Kantin Teknik.
                     </h3>
-                    <div className="flex flex-row items-center gap-5 mt-3">
+                    <div className="flex flex-row items-center gap-5 max-md:gap-3 mt-3">
                         <div className="flex flex-row items-center gap-2">
                             <div className="w-3 h-3 rounded-full bg-green-500 border" />
                             <p>Tersedia</p>
@@ -145,10 +145,31 @@ export default function ItemsPage() {
                 </div>
             </header>
 
-            <main className="flex flex-row w-full flex-1">
-                <div className="flex flex-col w-1/5 bg-gray-300/80 border-r">
-                    <div className="py-10 px-8">
-                        <h4 className="font-semibold text-xl mb-3">Kategori</h4>
+            <main className="flex flex-row max-md:flex-col w-full flex-1 max-md:justify-center">
+                <div className="flex flex-col w-1/5 bg-gray-300/80 border-r max-md:w-full max-md:z-10 max-md:bg-white max-md:justify-center max-md:items-start max-md:py-0">
+                    <div className="block md:hidden py-4 px-8">
+                        <h4 className="font-semibold text-xl mb-3 mt-0">Kategori</h4>
+                        <div className="relative w-full">
+                            <select
+                                className="w-full border pr-6 text-[13px] border-gray-300 rounded-md px-3 py-2 text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                value={selectedCategories.length === 0 ? "" : selectedCategories[0]}
+                                onChange={(e) => {
+                                    const val = e.target.value;
+                                    setSelectedCategories(val === "" ? [] : [val]);
+                                }}
+                            >
+                                <option value="">Semua Kategori</option>
+                                {categories.map((cat) => (
+                                    <option key={cat} value={cat} className="capitalize">
+                                        {cat}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div className="hidden md:block py-10 px-8">
+                        <h4 className="font-semibold text-xl mb-3 mt-0">Kategori</h4>
 
                         <div className="flex items-center mb-1">
                             <input
@@ -179,28 +200,41 @@ export default function ItemsPage() {
                         ))}
                     </div>
 
-                    <div className="flex flex-col px-8 gap-2">
+                    <div className="block md:hidden py-4 px-8">
+                        <h4 className="font-semibold text-xl mb-3 mt-0">Urutkan</h4>
+                        <div className="relative w-full">
+                            <select
+                                className="w-full border pr-4 text-[13px] border-gray-300 rounded-md px-3 py-2 text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                value={sort}
+                                onChange={(e) => setSort(e.target.value as "" | "Rating" | "Harga")}
+                            >
+                                <option value="">Default</option>
+                                <option value="Rating">Rating Tertinggi</option>
+                                <option value="Harga">Harga Terendah</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div className="hidden md:flex flex-col px-8 gap-2">
                         <h4 className="font-semibold text-xl mb-1">Urutkan</h4>
                         <button
                             onClick={() => setSort(sort === "Rating" ? "" : "Rating")}
-                            className={`text-start py-2 px-3 rounded-lg ${
-                                sort === "Rating" ? "border-2 border-gray-700" : ""
-                            }`}
+                            className={`text-start py-2 px-3 rounded-lg ${sort === "Rating" ? "border-2 border-gray-700" : ""
+                                }`}
                         >
                             Rating Tertinggi
                         </button>
                         <button
                             onClick={() => setSort(sort === "Harga" ? "" : "Harga")}
-                            className={`text-start py-2 px-3 rounded-lg ${
-                                sort === "Harga" ? "border-2 border-gray-700" : ""
-                            }`}
+                            className={`text-start py-2 px-3 rounded-lg ${sort === "Harga" ? "border-2 border-gray-700" : ""
+                                }`}
                         >
                             Harga Terendah
                         </button>
                     </div>
                 </div>
 
-                <div className="w-4/5 p-6">
+                <div className="w-4/5 p-6 max-md:px-2 max-md:py-0 flex justify-center max-md:w-full">
                     {loading && (
                         <div className="flex justify-center items-center h-full mt-40 text-gray-500">
                             Memuat data item...
@@ -220,58 +254,58 @@ export default function ItemsPage() {
                     )}
 
                     {!loading && !error && displayedItems.length > 0 && (
-                        <div className="grid grid-cols-3 gap-4 content-start px-20 py-10">
+                        <div className="grid grid-cols-3 max-md:grid-cols-2 w-full max-sm:grid-cols-1 gap-4 content-start px-20 py-10 max-md:px-5 max-md:py-8">
                             {displayedItems.map((item) => (
-                            <div
-                                key={item.item_id}
-                                className="flex flex-col bg-white rounded-xl border shadow-sm overflow-hidden"
-                            >
-                                <div className="relative">
-                                    {item.picture_url ? (
-                                        <img
-                                            src={item.picture_url}
-                                            alt={item.name}
-                                            className="w-full h-44 object-cover"
-                                        />
-                                    ) : (
-                                        <div className="w-full h-44 bg-gray-100 flex items-center justify-center text-gray-400 text-sm">
-                                            Tidak ada gambar
-                                        </div>
-                                    )}
-                                    <span className="absolute top-2 right-2 bg-white/90 rounded-full px-2 py-0.5 text-xs font-semibold flex items-center gap-1 shadow-sm">
-                                        <span className="text-yellow-400">★</span>
-                                        {item.rating_avg?.toFixed(1) ?? "-"}
-                                    </span>
-                                </div>
-
-                                <div className="p-4 flex flex-col gap-1">
-                                    <div className="flex flex-row justify-between items-start">
-                                        <h3 className="font-bold text-sm leading-tight">{item.name}</h3>
-                                        <span className="font-bold text-sm ml-2 shrink-0">
-                                            {item.price != null ? formatPrice(item.price) : "-"}
+                                <div
+                                    key={item.item_id}
+                                    className="flex flex-col bg-white rounded-xl border shadow-sm overflow-hidden"
+                                >
+                                    <div className="relative">
+                                        {item.picture_url ? (
+                                            <img
+                                                src={item.picture_url}
+                                                alt={item.name}
+                                                className="w-full h-44 object-cover"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-44 bg-gray-100 flex items-center justify-center text-gray-400 text-sm">
+                                                Tidak ada gambar
+                                            </div>
+                                        )}
+                                        <span className="absolute top-2 right-2 bg-white/90 rounded-full px-2 py-0.5 text-xs font-semibold flex items-center gap-1 shadow-sm">
+                                            <span className="text-yellow-400">★</span>
+                                            {item.rating_avg?.toFixed(1) ?? "-"}
                                         </span>
                                     </div>
 
-                                    <div className="flex flex-row py-2 gap-2 items-center">
-                                        <div className={`w-3 h-3 rounded-full shrink-0 ${STATUS_COLOR[item.status] ?? "bg-gray-400"}`} />
-                                        <span className="font-semibold text-xs">{item.stall_name}</span>
-                                    </div>
+                                    <div className="p-4 flex flex-col gap-1">
+                                        <div className="flex flex-row justify-between items-start">
+                                            <h3 className="font-bold text-sm leading-tight">{item.name}</h3>
+                                            <span className="font-bold text-sm ml-2 shrink-0">
+                                                {item.price != null ? formatPrice(item.price) : "-"}
+                                            </span>
+                                        </div>
 
-                                    {item.description && (
-                                        <p className="text-xs italic text-gray-600 line-clamp-2 pb-3 border-b border-gray-200">
-                                            {item.description}
-                                        </p>
-                                    )}
+                                        <div className="flex flex-row py-2 gap-2 items-center">
+                                            <div className={`w-3 h-3 rounded-full shrink-0 ${STATUS_COLOR[item.status] ?? "bg-gray-400"}`} />
+                                            <span className="font-semibold text-xs">{item.stall_name}</span>
+                                        </div>
 
-                                    <div className="flex flex-row justify-between items-center pt-2">
-                                        <span className="text-xs text-gray-500 capitalize">{item.category}</span>
-                                        <button onClick={() => {setSelectedItem(item)}} className="text-xs font-semibold text-gray-700 hover:underline">
-                                            Detail Item
-                                        </button>
+                                        {item.description && (
+                                            <p className="text-xs italic text-gray-600 line-clamp-2 pb-3 border-b border-gray-200">
+                                                {item.description}
+                                            </p>
+                                        )}
+
+                                        <div className="flex flex-row justify-between items-center pt-2">
+                                            <span className="text-xs text-gray-500 capitalize">{item.category}</span>
+                                            <button onClick={() => { setSelectedItem(item) }} className="text-xs font-semibold text-gray-700 hover:underline">
+                                                Detail Item
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
                         </div>
                     )}
                 </div>
@@ -281,38 +315,38 @@ export default function ItemsPage() {
                     (
                         <div onClick={() => setSelectedItem(null)} className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-lg bg-black/30 px-4">
                             <div onClick={(e) => e.stopPropagation()} className="bg-white border border-[#E2E8F0] rounded-[3rem] max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl relative">
-                                <button 
-                                onClick={() => setSelectedItem(null)} 
-                                className="absolute top-6 right-6 w-10 h-10 bg-[#F8FAFC] border border-[#E2E8F0] rounded-full flex items-center justify-center hover:bg-gray-50 transition-all cursor-pointer"
+                                <button
+                                    onClick={() => setSelectedItem(null)}
+                                    className="absolute top-6 right-6 w-10 h-10 bg-[#F8FAFC] border border-[#E2E8F0] rounded-full flex items-center justify-center hover:bg-gray-50 transition-all cursor-pointer"
                                 >
-                                <X className="w-5 h-5 text-[#0F172A]" />
+                                    <X className="w-5 h-5 text-[#0F172A]" />
                                 </button>
                                 <div className="h-72 bg-gray-100 w-full overflow-hidden">
-                                {selectedItem.picture_url ? (
-                                    <img src={selectedItem.picture_url} className="w-full h-full object-cover" />
-                                ) : (
-                                    <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">
-                                        Tidak ada gambar
-                                    </div>
-                                )}
+                                    {selectedItem.picture_url ? (
+                                        <img src={selectedItem.picture_url} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">
+                                            Tidak ada gambar
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="p-8 space-y-6">
-                                <div className="flex justify-between items-start">
-                                    <div>
-                                    <h2 className="text-3xl font-bold text-[#0F172A]">{selectedItem.name}</h2>
-                                    <p className="text-[#38BDF8] font-bold text-xl mt-1">{selectedItem.price != null ? `Rp${selectedItem.price.toLocaleString('id-ID')}` : "-"}</p>
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <h2 className="text-3xl font-bold text-[#0F172A]">{selectedItem.name}</h2>
+                                            <p className="text-[#38BDF8] font-bold text-xl mt-1">{selectedItem.price != null ? `Rp${selectedItem.price.toLocaleString('id-ID')}` : "-"}</p>
+                                        </div>
                                     </div>
-                                </div>
-                                <p className="text-gray-500 leading-relaxed italic">{selectedItem.description}</p>
-                                <div className="pt-6 border-t border-gray-100">
-                                    <button 
-                                    onClick={() => handleOrder(selectedItem)}
-                                    className="w-full bg-[#0F172A] text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-3 shadow-xl cursor-pointer"
-                                    >
-                                    <ShoppingBag className="w-5 h-5" />
-                                    Pesan Item Ini Sekarang
-                                    </button>
-                                </div>
+                                    <p className="text-gray-500 leading-relaxed italic">{selectedItem.description}</p>
+                                    <div className="pt-6 border-t border-gray-100">
+                                        <button
+                                            onClick={() => handleOrder(selectedItem)}
+                                            className="w-full bg-[#0F172A] text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-3 shadow-xl cursor-pointer"
+                                        >
+                                            <ShoppingBag className="w-5 h-5" />
+                                            Pesan Item Ini Sekarang
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
