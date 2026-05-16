@@ -179,11 +179,9 @@ export default function MapPage() {
                                         <p className="text-xs italic">Harga</p>
                                         <p className="mt-3 text-base font-medium">
                                             {
-                                                selectedStall.max_price > selectedStall.max_price ? `${selectedStall.min_price ? 
-                                                `Rp ${selectedStall.min_price.toLocaleString()}` : "Rp 0"} - ${selectedStall.max_price ? `Rp ${selectedStall.max_price.toLocaleString()}` : "Rp 0"}` 
-                                                : 
-                                                `${selectedStall.min_price ? 
-                                                `Rp ${selectedStall.min_price.toLocaleString()}+` : "Rp 0"}`
+                                                selectedStall.max_price > selectedStall.min_price 
+                                                    ? `Rp ${(selectedStall.min_price || 0).toLocaleString("id-ID")} - Rp ${(selectedStall.max_price || 0).toLocaleString("id-ID")}` 
+                                                    : `Rp ${(selectedStall.min_price || 0).toLocaleString("id-ID")}${selectedStall.min_price ? '+' : ''}`
                                             }
                                         </p>
                                     </div>
