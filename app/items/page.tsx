@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
 import { X, ShoppingBag } from 'lucide-react';
 
 type Items = {
@@ -30,8 +29,11 @@ export default function ItemsPage() {
 
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
     const [categories, setCategories] = useState<string[]>([]);
-    const searchParams = useSearchParams();
-    const [search, setSearch] = useState(searchParams.get("search") ?? "");
+    const [search, setSearch] = useState("");
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        setSearch(params.get("search") ?? "");
+    }, []);
     const [selectedItem, setSelectedItem] = useState<Items | null>(null);
 
     useEffect(() => {
@@ -61,11 +63,6 @@ export default function ItemsPage() {
 
         loadItems();
     }, []);
-
-    useEffect(() => {
-        setSearch(searchParams.get("search") ?? "");
-    }, [searchParams]);
-
 
     function toggleCategory(category: string) {
         setSelectedCategories((prev) =>

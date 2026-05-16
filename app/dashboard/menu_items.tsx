@@ -4,6 +4,7 @@ import TambahMenuModal from "./tambahMenu";
 import EditMenuModal from "./editMenu";
 
 type MenuItem = {
+    category_id: number;
     item_id: string;
     stall_id: string;
     name: string;
@@ -22,7 +23,7 @@ export default function MenuItems({ stall_id }: MenuItemsProps) {
     const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState("");
-    const [selectedItem, setSelectedItem] = useState<MenuItem>();
+    const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
     
 
     useEffect(() => {
@@ -98,7 +99,7 @@ export default function MenuItems({ stall_id }: MenuItemsProps) {
                     onSuccess={handleSuccessEdit}
                 />
             )}
-            {showModal === "edit menu" && (
+            {showModal === "edit menu" && selectedItem && (
                 <EditMenuModal
                     onClose={() => setShowModal("")}
                     onSuccess={handleSuccessEdit}
