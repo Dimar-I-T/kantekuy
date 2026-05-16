@@ -21,8 +21,9 @@ interface ApiResponse {
 
 async function getTopStalls(): Promise<Stall[]> {
   try {
-    const res = await fetch('http://localhost:3000/api/stalls?by_rating=true', {
+    const res = await fetch(`${process.env.WEB_URL}/api/stalls?by_rating=true`, {
       cache: 'no-store',
+      method: 'GET'
     });
     
     if (!res.ok) return [];
