@@ -62,11 +62,11 @@ export default function Dashboard() {
 
     const renderPage = () => {
         switch (page) {
-            case "dashboard":    return <SellerDashboard stall_id={stall?.stall_id}/>;
-            case "menu items":   return <MenuItems stall_id={stall?.stall_id}/>;
-            case "ulasan":       return <Ulasan stall_id={stall?.stall_id}/>;
-            case "profil stall": return <ProfileStall stall_id={stall?.stall_id}/>;
-            default:             return <SellerDashboard stall_id={stall?.stall_id}/>;
+            case "dashboard":    return <SellerDashboard stall_id={stall?.stall_id ?? ""}/>;
+            case "menu items":   return <MenuItems stall_id={stall?.stall_id ?? ""}/>;
+            case "ulasan":       return <Ulasan stall_id={stall?.stall_id ?? ""}/>;
+            case "profil stall": return <ProfileStall stall_id={stall?.stall_id ?? ""}/>;
+            default:             return <SellerDashboard stall_id={stall?.stall_id ?? ""}/>;
         }
     };
 

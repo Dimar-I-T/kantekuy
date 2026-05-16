@@ -5,6 +5,7 @@ import TambahMenuModal from "./tambahMenu";
 import EditMenuModal from "./editMenu";
 
 type MenuItem = {
+    category_id: number;
     item_id: string;
     stall_id: string;
     name: string;
@@ -34,7 +35,7 @@ export default function SellerDashboard({ stall_id }: SellerDashboardProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState("");
-    const [selectedItem, setSelectedItem] = useState<MenuItem>();
+    const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
     const [reviewCount, setReviewCount] = useState<number>(0);
 
     useEffect(() => {
@@ -231,7 +232,7 @@ export default function SellerDashboard({ stall_id }: SellerDashboardProps) {
                     onSuccess={handleSuccessEdit}
                 />
             )}
-            {showModal === "edit menu" && (
+            {showModal === "edit menu" && selectedItem && (
                 <EditMenuModal
                     onClose={() => setShowModal("")}
                     onSuccess={handleSuccessEdit}

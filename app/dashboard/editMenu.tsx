@@ -15,7 +15,7 @@ type Item = {
     category_id: number;
     description: string;
     status: string;
-    picture_url: string;
+    picture_url: string | null;
 }
 
 type EditMenuModalProps = {

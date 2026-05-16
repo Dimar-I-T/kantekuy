@@ -158,18 +158,13 @@ export async function closeStallById(stall_id: string, is_open: string) {
         }
 
         const valueStatus = is_open === "true" ? "tersedia" : "tutup";
-        const updateStatusItem = await pool.query(`
+        await pool.query(`
                 update items
                 set status = $1
                 where stall_id = $2
                 returning *    
             `, [valueStatus, stall_id]);
 
-        if (updateStatusItem.rows.length === 0) {
-            throw Error('Gagal update items');
-        }
-
-        await pool.query('COMMIT');
         return closeStall.rows[0];
     } catch (error) {
         await pool.query('ROLLBACK');
