@@ -122,11 +122,11 @@ export default function SellerDashboard({ stall_id }: SellerDashboardProps) {
             <div className="flex items-start justify-between">
                 <div>
                     <h1 className="text-xl font-bold text-slate-900">Seller Dashboard</h1>
-                    <p className="text-sm text-slate-500 mt-0.5">
+                    <p className="text-sm text-slate-500 mt-0.5 not-lg:max-w-64">
                         Kelola menu dan profil kantin Anda dengan mudah.
                     </p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex not-md:flex-col-reverse items-center gap-3">
                     <span className="flex items-center gap-1.5 text-xs font-medium text-slate-600 border border-slate-200 rounded-full px-3 py-1.5 bg-white">
                         <span className={`w-1.5 h-1.5 rounded-full ${isOpen ? "bg-green-500" : "bg-red-400"}`} />
                         Status: {isOpen ? "Open" : "Closed"}

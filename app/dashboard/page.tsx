@@ -7,6 +7,7 @@ import MenuItems from "./menu_items";
 import Ulasan from "./ulasan";
 import ProfileStall from "./profilStall";
 
+
 type Stall = {
     stall_id: string;
     owner_id: string;
@@ -73,15 +74,15 @@ export default function Dashboard() {
     const Buttons = ["Dashboard", "Menu Items", "Ulasan", "Profil Stall"];
 
     return (
-        <div className="w-full min-h-screen flex flex-row bg-white">
-            <nav className="h-screen w-64 flex flex-col justify-between border-r border-slate-200 py-8">
+<div className="w-full flex flex-col lg:flex-row bg-white">
+            <nav className="lg:h-screen w-full lg:w-64 flex lg;flex-col not-lg:px-8 justify-between border-r border-slate-200 lg:py-8 pt-8">
                 <div>
-                    <div className="flex flex-row items-center gap-3 mb-10 px-6">
+                    <div className="flex flex-row items-center gap-3 mb-10 lg:px-6">
                         <Image src="/makara-ftui.png" alt="Logo" width={32} height={32} className="rounded-md" />
                         <p className="font-bold text-xl text-slate-900 tracking-tight">KanteKuy</p>
                     </div>
 
-                    <div className="flex flex-col w-full gap-2 px-6">
+                    <div className="hidden lg:flex flex-col w-full gap-2 px-6">
                         {Buttons.map((button) => {
                             const isSelected = page.toLowerCase() === button.toLowerCase();
 
@@ -102,15 +103,40 @@ export default function Dashboard() {
                     </div>
                 </div>
 
-                <div className="flex flex-col items-center justify-center border-t border-slate-200 pt-6">
+                <div className="flex flex-col items-center justify-center lg:border-t border-slate-200 lg:pt-6">
                     <div>
                         <p className="font-bold text-sm text-slate-800">
                             {stall ? stall.name : "Memuat..."}
                         </p>
-                        <p className="text-[10px] font-semibold text-slate-500 mt-1">Seller Panel</p>
+                        <p className="text-[10px] w-full not-lg:text-end font-semibold text-slate-500 mt-1">Seller Panel</p>
                     </div>
                 </div>
             </nav>
+
+            <div className="lg:hidden flex w-full justify-center">
+                <div className="lg:hidden flex w-full justify-center">
+                    <select
+                        value={page} 
+                        onChange={(e) => setPage(e.target.value)} 
+                        className="w-11/12 px-4 py-3 mt-4 rounded-xl bg-[#0F172A] text-white text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-400 cursor-pointer appearance-none"
+                    >
+                        {Buttons.map((button) => {
+                            return (
+                                <option
+                                    key={button}
+                                    value={button.toLowerCase()}
+                                    className="bg-white text-slate-900 font-medium"
+                                >
+                                    {button}
+                                </option>
+                            );
+                        })}
+
+
+
+                    </select>
+                </div>
+            </div>
 
             <main className="flex-1 bg-slate-50 p-8">
                 {renderPage()}
