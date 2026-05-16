@@ -75,7 +75,7 @@ export default function Dashboard() {
 
     return (
 <div className="w-full flex flex-col lg:flex-row bg-white">
-            <nav className="lg:h-screen w-full lg:w-64 flex lg;flex-col not-lg:px-8 justify-between border-r border-slate-200 lg:py-8 pt-8">
+            <nav className="lg:h-screen w-full lg:w-64 flex lg:flex-col not-lg:px-8 justify-between border-r border-slate-200 lg:py-8 pt-8">
                 <div>
                     <div className="flex flex-row items-center gap-3 mb-10 lg:px-6">
                         <Image src="/makara-ftui.png" alt="Logo" width={32} height={32} className="rounded-md" />
